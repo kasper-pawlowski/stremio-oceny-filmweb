@@ -1,4 +1,3 @@
-const { addonBuilder } = require('stremio-addon-sdk');
 const axios = require('axios');
 const cheerio = require('cheerio');
 
@@ -9,22 +8,18 @@ const manifest = {
     resources: ['meta'],
     types: ['movie', 'series'],
     name: 'Oceny Filmweb',
-    description: 'Dodaje oceny widzów i krytyków z portalu Filmweb',
+    description: 'Dodaje oceny widzów i krytyków z portalu Filmweb. Wspiera Aiometadata.',
     idPrefixes: ['tt'],
     logo: 'https://www.filmweb.pl/favicon.ico',
+    behaviorHints: { configurable: true },
 };
-const builder = new addonBuilder(manifest);
 
 const axiosConfig = {
-    headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    },
+    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
 };
 
-// 1. FUNKCJA DO POBIERANIA ID Z WIKIDATA
 async function getFilmwebIdFromWikidata(imdbId) {
     try {
-        console.log(`Pytam Wikidata o Filmweb ID dla: ${imdbId}`);
         const sparqlQuery = `
         SELECT ?textId ?filmId ?seriesId WHERE {
           ?item wdt:P345 "${imdbId}".
@@ -32,13 +27,8 @@ async function getFilmwebIdFromWikidata(imdbId) {
           OPTIONAL { ?item wdt:P5032 ?filmId. }
           OPTIONAL { ?item wdt:P5288 ?seriesId. }
         }`;
-
         const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(sparqlQuery)}&format=json`;
-
-        const response = await axios.get(url, {
-            headers: { 'User-Agent': 'StremioFilmwebAddon/1.0 (https://github.com/stremio)' },
-        });
-
+        const response = await axios.get(url, { headers: { 'User-Agent': 'StremioFilmwebAddon/1.0' } });
         const bindings = response.data.results.bindings;
         if (bindings && bindings.length > 0) {
             return {
@@ -53,68 +43,56 @@ async function getFilmwebIdFromWikidata(imdbId) {
     return null;
 }
 
-// 2. GŁÓWNA LOGIKA SCRAPERA
 async function getFilmwebData(imdbId, type) {
     try {
         const ids = await getFilmwebIdFromWikidata(imdbId);
-
-        if (!ids || (!ids.textId && !ids.filmId && !ids.seriesId)) {
-            console.log('Nie znaleziono powiązania w bazie Wikidata dla tego tytułu.');
-            return null;
-        }
+        if (!ids || (!ids.textId && !ids.filmId && !ids.seriesId)) return null;
 
         let movieUrl;
         let resolvedTextId = ids.textId;
-
         if (ids.filmId && !/^\d+$/.test(ids.filmId)) resolvedTextId = ids.filmId;
         if (ids.seriesId && !/^\d+$/.test(ids.seriesId)) resolvedTextId = ids.seriesId;
 
-        if (resolvedTextId) {
-            movieUrl = `https://www.filmweb.pl/${resolvedTextId}`;
-        } else if (ids.seriesId) {
-            movieUrl = `https://www.filmweb.pl/serial?Id=${ids.seriesId}`;
-        } else if (ids.filmId) {
-            movieUrl = `https://www.filmweb.pl/film?Id=${ids.filmId}`;
-        } else {
-            return null;
-        }
-
-        console.log(`Znalazłem ID! Wchodzę na: ${movieUrl}`);
+        if (resolvedTextId) movieUrl = `https://www.filmweb.pl/${resolvedTextId}`;
+        else if (ids.seriesId) movieUrl = `https://www.filmweb.pl/serial?Id=${ids.seriesId}`;
+        else if (ids.filmId) movieUrl = `https://www.filmweb.pl/film?Id=${ids.filmId}`;
+        else return null;
 
         const movieResponse = await axios.get(movieUrl, axiosConfig);
         const $$ = cheerio.load(movieResponse.data);
 
-        // -- OCENA WIDZÓW --
-        let rating = $$('.filmRating__rateValue').first().text().trim();
-        if (!rating) rating = '?';
-        else rating = rating.replace(',', '.');
+        let rating = $$('.filmRating__rateValue').first().text().trim() || '?';
+        rating = rating.replace(',', '.');
 
-        // -- OCENA KRYTYKÓW --
-        let criticsRating = $$('.filmRating--filmCritic .filmRating__rateValue').first().text().trim();
-        if (!criticsRating) criticsRating = '?';
-        else criticsRating = criticsRating.replace(',', '.');
+        let criticsRating = $$('.filmRating--filmCritic .filmRating__rateValue').first().text().trim() || '?';
+        criticsRating = criticsRating.replace(',', '.');
 
-        return {
-            rating: rating,
-            critics: criticsRating,
-            url: movieUrl,
-        };
+        return { rating, critics: criticsRating, url: movieUrl };
     } catch (error) {
-        console.error('Błąd scrapera Filmwebu:', error.message);
         return null;
     }
 }
 
-// 3. OBSŁUGA ZAPYTAŃ OD STREMIO
-builder.defineMetaHandler(async ({ type, id }) => {
-    console.log(`\n--- Przechwycono zapytanie o: ${type} ${id} ---`);
+async function handleMeta(type, id, aioId) {
+    console.log(`\n--- Zapytanie: ${type} ${id} | Aiometadata ID: ${aioId || 'Brak'} ---`);
     let meta = { id, type };
 
     try {
-        const cinemetaUrl = `https://v3-cinemeta.strem.io/meta/${type}/${id}.json`;
-        const response = await axios.get(cinemetaUrl);
+        let response;
 
-        if (response.data && response.data.meta) {
+        if (aioId) {
+            const metaUrl = `https://aiometadata.elfhosted.com/stremio/${aioId}/meta/${type}/${id}.json`;
+            try {
+                response = await axios.get(metaUrl);
+            } catch (error) {
+                console.log('[Błąd] aiometadata padło, powrót do Cinemeta...');
+                response = await axios.get(`https://v3-cinemeta.strem.io/meta/${type}/${id}.json`);
+            }
+        } else {
+            response = await axios.get(`https://v3-cinemeta.strem.io/meta/${type}/${id}.json`);
+        }
+
+        if (response && response.data && response.data.meta) {
             meta = response.data.meta;
         }
 
@@ -122,16 +100,13 @@ builder.defineMetaHandler(async ({ type, id }) => {
 
         if (id && id.startsWith('tt')) {
             const fwData = await getFilmwebData(id, type);
-
             if (fwData) {
-                meta.links = [
-                    {
-                        name: `⭐ ${fwData.rating}\u00A0\u00A0\u00A0\u00A0\u00A0|\u00A0\u00A0\u00A0\u00A0\u00A0🍅 ${fwData.critics}`,
-                        category: 'Filmweb',
-                        url: fwData.url,
-                    },
-                    ...originalLinks,
-                ];
+                const buttonName =
+                    fwData.critics !== '?'
+                        ? `⭐ ${fwData.rating}\u00A0\u00A0\u00A0\u00A0\u00A0|\u00A0\u00A0\u00A0\u00A0\u00A0🍅 ${fwData.critics}`
+                        : `⭐ ${fwData.rating}\u00A0\u00A0\u00A0\u00A0\u00A0(Filmweb)`;
+
+                meta.links = [{ name: buttonName, category: 'Przejdź na Filmweb', url: fwData.url }, ...originalLinks];
             } else {
                 meta.links = originalLinks;
             }
@@ -139,11 +114,10 @@ builder.defineMetaHandler(async ({ type, id }) => {
             meta.links = originalLinks;
         }
 
-        return Promise.resolve({ meta, cacheMaxAge: 86400 });
+        return { meta, cacheMaxAge: 86400 };
     } catch (error) {
-        console.error('Błąd podczas obsługi meta:', error.message);
-        return Promise.resolve({ meta });
+        return { meta };
     }
-});
+}
 
-module.exports = builder.getInterface();
+module.exports = { manifest, handleMeta };
