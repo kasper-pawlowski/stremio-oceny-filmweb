@@ -118,7 +118,7 @@ async function handleMeta(type, id, aioId) {
                         ? `⭐ ${fwData.rating}\u00A0\u00A0\u00A0\u00A0\u00A0|\u00A0\u00A0\u00A0\u00A0\u00A0🍅 ${fwData.critics}`
                         : `⭐ ${fwData.rating}\u00A0\u00A0\u00A0\u00A0\u00A0(Filmweb)`;
 
-                meta.links = [{ name: ratingText, category: 'Przejdź na Filmweb', url: fwData.url }, ...originalLinks];
+                meta.links = [{ name: ratingText, category: 'Filmweb', url: fwData.url }, ...originalLinks];
                 meta.description = meta.description ? meta.description + ratingText : ratingText;
             } else {
                 meta.links = originalLinks;
