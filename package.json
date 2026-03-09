@@ -1,0 +1,23 @@
+{
+    "name": "stremio-oceny-filmweb",
+    "version": "1.0.0",
+    "description": "Dodatek do Stremio pobierający w czasie rzeczywistym oceny widzów i krytyków z portalu Filmweb.",
+    "main": "addon.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "keywords": [
+        "stremio",
+        "addon",
+        "filmweb",
+        "ratings",
+        "poland"
+    ],
+    "author": "Kasper Pawłowski",
+    "license": "MIT",
+    "dependencies": {
+        "axios": "^1.13.6",
+        "cheerio": "^1.2.0",
+        "stremio-addon-sdk": "1.1.x"
+    }
+}
