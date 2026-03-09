@@ -11,6 +11,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => res.redirect('/configure'));
+app.get('/aio/:aioId/configure', (req, res) => res.redirect('/configure')); // <- TA LINIJKA NAPRAWIA ZĘBATKĘ
 
 app.get('/configure', (req, res) => {
     res.setHeader('Content-Type', 'text/html');
