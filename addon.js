@@ -1,5 +1,8 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
+const NodeCache = require('node-cache');
+
+const filmwebCache = new NodeCache({ stdTTL: 43200 });
 
 const manifest = {
     id: 'community.oceny-filmweb',
@@ -44,6 +47,11 @@ async function getFilmwebIdFromWikidata(imdbId) {
 }
 
 async function getFilmwebData(imdbId, type) {
+    const cachedData = filmwebCache.get(imdbId);
+    if (cachedData) {
+        return cachedData;
+    }
+
     try {
         const ids = await getFilmwebIdFromWikidata(imdbId);
         if (!ids || (!ids.textId && !ids.filmId && !ids.seriesId)) return null;
@@ -67,7 +75,11 @@ async function getFilmwebData(imdbId, type) {
         let criticsRating = $$('.filmRating--filmCritic .filmRating__rateValue').first().text().trim() || '?';
         criticsRating = criticsRating.replace(',', '.');
 
-        return { rating, critics: criticsRating, url: movieUrl };
+        const result = { rating, critics: criticsRating, url: movieUrl };
+
+        filmwebCache.set(imdbId, result);
+
+        return result;
     } catch (error) {
         return null;
     }
