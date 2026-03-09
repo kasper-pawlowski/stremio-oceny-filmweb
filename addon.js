@@ -119,7 +119,6 @@ async function handleMeta(type, id, aioId) {
                         : `⭐ ${fwData.rating}\u00A0\u00A0\u00A0\u00A0\u00A0(Filmweb)`;
 
                 meta.links = [{ name: ratingText, category: 'Filmweb', url: fwData.url }, ...originalLinks];
-                meta.description = meta.description ? meta.description + ratingText : ratingText;
             } else {
                 meta.links = originalLinks;
             }
