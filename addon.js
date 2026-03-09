@@ -101,21 +101,13 @@ async function handleMeta(type, id, aioId) {
         if (id && id.startsWith('tt')) {
             const fwData = await getFilmwebData(id, type);
             if (fwData) {
-                // 1. Przycisk (Działa bezbłędnie na PC i Web)
-                const buttonName =
+                const ratingText =
                     fwData.critics !== '?'
                         ? `⭐ ${fwData.rating}\u00A0\u00A0\u00A0\u00A0\u00A0|\u00A0\u00A0\u00A0\u00A0\u00A0🍅 ${fwData.critics}`
                         : `⭐ ${fwData.rating}\u00A0\u00A0\u00A0\u00A0\u00A0(Filmweb)`;
 
-                meta.links = [{ name: buttonName, category: 'Przejdź na Filmweb', url: fwData.url }, ...originalLinks];
-
-                // 2. ŁATKA DLA ANDROIDA: Doklejamy tekstową ocenę do opisu filmu!
-                const androidRatingText =
-                    fwData.critics !== '?'
-                        ? `\n\n⭐ FILMWEB: ${fwData.rating}  |  🍅 KRYTYCY: ${fwData.critics}`
-                        : `\n\n⭐ FILMWEB: ${fwData.rating}`;
-
-                meta.description = meta.description ? meta.description + androidRatingText : androidRatingText;
+                meta.links = [{ name: ratingText, category: 'Przejdź na Filmweb', url: fwData.url }, ...originalLinks];
+                meta.description = meta.description ? meta.description + ratingText : ratingText;
             } else {
                 meta.links = originalLinks;
             }
