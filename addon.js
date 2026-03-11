@@ -15,6 +15,11 @@ const manifest = {
     idPrefixes: ['tt'],
     logo: 'https://www.filmweb.pl/favicon.ico',
     behaviorHints: { configurable: true },
+    stremioAddonsConfig: {
+        issuer: 'https://stremio-addons.net',
+        signature:
+            'eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..Vtxm80jZIbVsvQXVNbg_Fw.cPjzUkOcPBxP0CjqrGqRmyzGutQxdCOR4vmE1jY_IWhFQIh3TdYhQt3paG87ElrzGXizUqmLaWz5Rq0cAAXWAidoIA5BQFICna5fGJH8yXxP-HCMrZ1wlXwoDuXeJ5po.m88PLbbX-Yt6kcDPpPEJ-g',
+    },
 };
 
 const axiosConfig = {
