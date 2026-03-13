@@ -1,6 +1,6 @@
 {
     "name": "stremio-oceny-filmweb",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Dodatek do Stremio pobierający w czasie rzeczywistym oceny widzów i krytyków z portalu Filmweb.",
     "main": "addon.js",
     "scripts": {
