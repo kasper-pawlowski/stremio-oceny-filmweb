@@ -124,3 +124,5 @@ const port = process.env.PORT || 51771;
 app.listen(port, () => {
     console.log(`Serwer działa! Otwórz: http://localhost:${port}/configure`);
 });
+
+module.exports = app;
