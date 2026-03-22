@@ -239,6 +239,13 @@ function formatCriticsCount(count) {
     return `${count} krytyków`;
 }
 
+function getCriticEmoji(rate) {
+    if (!rate) return '⬜'; // Szary/Biały dla braku ocen
+    if (rate >= 6.0) return '🟩'; // Pozytywne
+    if (rate >= 4.0) return '🟨'; // Mieszane
+    return '🟥'; // Negatywne
+}
+
 async function handleStream(type, id) {
     const cleanImdbId = id.split(':')[0];
 
@@ -267,7 +274,7 @@ async function handleStream(type, id) {
     const fCriticsRate = ratings.criticsRating ? formatRating(ratings.criticsRating) : '?';
     const fCriticsCount = formatCriticsCount(ratings.criticsVotes);
 
-    const finalDescription = `⭐ ${fUsersRate}  (${fUsersCount})\n🟩 ${fCriticsRate}  (${fCriticsCount})`;
+    const finalDescription = `⭐ ${fUsersRate}  (${fUsersCount})\n${getCriticEmoji(ratings.criticsRating)} ${fCriticsRate}  (${fCriticsCount})`;
 
     return {
         streams: [
