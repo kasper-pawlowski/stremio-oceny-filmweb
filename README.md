@@ -1,27 +1,21 @@
-# Instrukcja dodatku Oceny Filmweb
+# ⭐ Oceny Filmweb w Stremio
 
-Ten dodatek integruje Stremio z portalem Filmweb, wyświetlając oceny widzów i krytyków.
+Prosty dodatek do Stremio, który wyświetla oceny widzów i krytyków z portalu Filmweb.
 
-## 1. Instalacja
+## ✨ Co robi ten dodatek?
 
-**Opcja A: Wersja standardowa (Cinemeta)**
+- **Pokazuje oceny:** Dodaje do każdego filmu i serialu w Stremio aktualną ocenę widzów oraz krytyków z Filmwebu.
+- **Linkuje do Filmwebu:** Kliknięcie w ocenę przenosi Cię bezpośrednio na kartę danego tytułu w przeglądarce.
 
-1. Otwórz Stremio i przejdź do panelu dodatków.
-2. Wklej `https://stremio-oceny-filmweb.vercel.app/manifest.json` w pole wyszukiwania i kliknij "Zainstaluj".
+## 🚀 Jak zainstalować?
 
-**Opcja B: Integracja z Aiometadata**
+Dodatek nie wymaga żadnego logowania ani konfiguracji.
 
-1. Otwórz `https://stremio-oceny-filmweb.vercel.app` w swojej przeglądarce.
-2. Zaznacz pole Aiometadata i wpisz swoje unikalne ID.
-3. Skopiuj wygenerowany link.
-4. Wklej go w wyszukiwarkę dodatków w Stremio i kliknij "Zainstaluj".
+1. Skopiuj link do dodatku (np. `https://aad212dff663-oceny-filmweb.baby-beamup.club/manifest.json`).
+2. Otwórz aplikację Stremio i przejdź do panelu dodatków (ikona puzzla).
+3. Wklej skopiowany link w pasek wyszukiwania.
+4. Kliknij **Zainstaluj** (Install) przy kafelku z logo Filmwebu.
 
-## 2. Użytkowanie
+---
 
-Dodatek działa automatycznie zaraz po instalacji.
-
-1. Wybierz dowolny film lub serial.
-2. Ocena z Filmwebu pojawi się na liście źródeł (streamów).
-3. Kliknij w ocene, aby otworzyć stronę produkcji na portalu Filmweb.
-
-_Uwaga: Pierwsze pobranie ocen dla danego tytułu może potrwać kilka sekund. Dzięki pamięci podręcznej, kolejne otwarcia tego samego tytułu są natychmiastowe._
+_Projekt stworzony hobbystycznie. Nie jest oficjalnie powiązany z serwisem Filmweb._
