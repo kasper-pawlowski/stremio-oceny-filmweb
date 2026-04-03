@@ -266,8 +266,6 @@ async function handleStream(type, id) {
 
     const ratings = await getFilmwebRatings(filmwebId);
 
-    console.log(ratings);
-
     const fUsersRate = formatRating(ratings.usersRating);
     const fUsersCount = formatUsersCount(ratings.usersCount);
 
@@ -276,12 +274,14 @@ async function handleStream(type, id) {
 
     const finalDescription = `⭐ ${fUsersRate}  (${fUsersCount})\n${getCriticEmoji(ratings.criticsRating)} ${fCriticsRate}  (${fCriticsCount})`;
 
+    const fwType = type === 'series' ? 'serial' : 'film';
+
     return {
         streams: [
             {
                 name: '🟡 Filmweb',
                 description: finalDescription,
-                externalUrl: `https://www.filmweb.pl/film?Id=${filmwebId}`,
+                externalUrl: `https://www.filmweb.pl/${fwType}/tytul-0-${filmwebId}`,
             },
         ],
     };
